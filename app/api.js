@@ -4,24 +4,38 @@ var path       = require("path"),
     express    = require("express"),
     bodyParser = require('body-parser'),
     config     = require("../config.json"),
+    log4js     = require("log4js"),
     http_test  = config.http_test_only;
+
+var logger = log4js.getLogger();
+
+log4js.configure({}
+	appenders: [
+		{ type: 'console' },
+		{ type: 'file', filename: 'prism-connector.log', category: 'connector' },
+	]
+);
+
 
 // Helper function to log errors and send a generic status "SUCCESS"
 // message to the caller
 function log_error_send_success_with(success_obj, error, response) {
     if (error) {
-        console.log("ERROR: " + error);
+        logger.error(error);
         response.send({ status: "ERROR", error: error });
     } else {
         success_obj = success_obj || {};
         success_obj["status"] = "SUCCESS";
         response.send(success_obj);
+		logger.debug("Success sent : " + JSON.stringify(success_obj));
     }
     response.end();
 }
 
 function redirectUnmatched(req, res) {
-    res.redirect(config.access_point.ip_addr + ':' + config.server.port);
+	var redirectUrl = config.access_point.ip_addr + ':' + config.server.port + '/';
+	logger.debug("Redirecting client from '" + req.originalUrl + "' to '" + redirectUrl + "'.");
+    res.redirect('/');
 }
 
 /*****************************************************************************\
@@ -47,7 +61,7 @@ module.exports = function(wifi_manager, callback) {
     // Setup HTTP routes for various APIs we wish to implement
     // the responses to these are typically JSON
     app.get("/api/rescan_wifi", function(request, response) {
-        console.log("Server got /rescan_wifi");
+        logger.info("Server got /rescan_wifi");
         iwlist(function(error, result) {
             log_error_send_success_with(result[0], error, response);
         });
@@ -63,15 +77,15 @@ module.exports = function(wifi_manager, callback) {
         // currently we ignore ifup failures.
         wifi_manager.enable_wifi_mode(conn_info, function(error) {
             if (error) {
-                console.log("Enable Wifi ERROR: " + error);
-                console.log("Attempt to re-enable AP mode");
+                logger.error("Enable Wifi ERROR: " + error);
+                logger.info("Attempt to re-enable AP mode");
                 wifi_manager.enable_ap_mode(config.access_point.ssid, function(error) {
-                    console.log("... AP mode reset");
+                    logger.info("... AP mode reset");
                 });
                 response.redirect("/");
             }
             // Success! - exit
-            console.log("Wifi Enabled! - Exiting");
+            logger.info("Wifi Enabled! - Exiting");
             process.exit(0);
         });
     });

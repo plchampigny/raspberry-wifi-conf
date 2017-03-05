@@ -2,7 +2,17 @@ var _       = require("underscore")._,
     async   = require("async"),
     fs      = require("fs"),
     exec    = require("child_process").exec,
+    log4js  = require("log4js"),
     config  = require("../config.json");
+ 
+
+var logger = log4js.getLogger();
+log4js.configure({}
+	appenders: [
+		{ type: 'console' },
+		{ type: 'file', filename: 'prism-connector.log', category: 'connector' },
+	]
+);
 
 // Better template format
 _.templateSettings = {
@@ -31,7 +41,7 @@ function del_config_file(file_name, callback) {
     async.waterfall([
 
         function del_file(next_step) {
-          console.log("... Going to delete an existing file");
+          logger.info("... Going to delete an existing file");
           fs.unlink(file_name, next_step);
         }
     ], callback);
@@ -47,7 +57,7 @@ module.exports = function() {
         if (stderr.match(/^nl80211 not found/)) {
             config.wifi_driver_type = "rtl871xdrv";
         }
-        // console.log("config.wifi_driver_type = " + config.wifi_driver_type);
+        // logger.info("config.wifi_driver_type = " + config.wifi_driver_type);
     });
 
     // Hack: this just assumes that the outbound interface will be "wlan0"
@@ -105,13 +115,13 @@ module.exports = function() {
         async.series([
             function down(next_step) {
                 exec("sudo ifdown " + wlan_iface, function(error, stdout, stderr) {
-                    if (!error) console.log("ifdown " + wlan_iface + " successful...");
+                    if (!error) logger.info("ifdown " + wlan_iface + " successful...");
                     next_step();
                 });
             },
             function up(next_step) {
                 exec("sudo ifup " + wlan_iface, function(error, stdout, stderr) {
-                    if (!error) console.log("ifup " + wlan_iface + " successful...");
+                    if (!error) logger.info("ifup " + wlan_iface + " successful...");
                     next_step();
                 });
             },
@@ -168,17 +178,17 @@ module.exports = function() {
     _enable_ap_mode = function(bcast_ssid, callback) {
         _is_ap_enabled(function(error, result_addr) {
             if (error) {
-                console.log("ERROR: " + error);
+                logger.info("ERROR: " + error);
                 return callback(error);
             }
 
             if (result_addr && !config.access_point.force_reconfigure) {
-                console.log("\nAccess point is enabled with ADDR: " + result_addr);
+                logger.info("\nAccess point is enabled with ADDR: " + result_addr);
                 return callback(null);
             } else if (config.access_point.force_reconfigure) {
-                console.log("\nForce reconfigure enabled - reset AP");
+                logger.info("\nForce reconfigure enabled - reset AP");
             } else {
-                console.log("\nAP is not enabled yet... enabling...");
+                logger.info("\nAP is not enabled yet... enabling...");
             }
 
             var context = config.access_point;
@@ -236,24 +246,24 @@ module.exports = function() {
 
                 function restart_dhcp_service(next_step) {
                     exec("service dhcpcd restart", function(error, stdout, stderr) {
-                        //console.log(stdout);
-                        if (!error) console.log("... dhcpcd server restarted!");
+                        //logger.info(stdout);
+                        if (!error) logger.info("... dhcpcd server restarted!");
                         next_step();
                     });
                 },
 
                 function restart_dns_service(next_step) {
                     exec("service dnsmasq restart", function(error, stdout, stderr) {
-                        //console.log(stdout);
-                        if (!error) console.log("... dnsmasq server restarted!");
+                        //logger.info(stdout);
+                        if (!error) logger.info("... dnsmasq server restarted!");
                         next_step();
                     });
                 },
 
                 function restart_hostapd_service(next_step) {
                     exec("service hostapd restart", function(error, stdout, stderr) {
-                        //console.log(stdout);
-                        if (!error) console.log("... hostapd restarted!");
+                        //logger.info(stdout);
+                        if (!error) logger.info("... hostapd restarted!");
                         next_step();
                     });
                 },
@@ -271,7 +281,7 @@ module.exports = function() {
             if (error) return callback(error);
 
             if (result_ip) {
-                console.log("\nWifi connection is enabled with IP: " + result_ip);
+                logger.info("\nWifi connection is enabled with IP: " + result_ip);
                 return callback(null);
             }
 
@@ -310,8 +320,8 @@ module.exports = function() {
                 // Stop the DHCP server...
                 function restart_dhcp_service(next_step) {
                     exec("service dnsmasq stop", function(error, stdout, stderr) {
-                        //console.log(stdout);
-                        if (!error) console.log("... dhcp server stopped!");
+                        //logger.info(stdout);
+                        if (!error) logger.info("... dhcp server stopped!");
                         next_step();
                     });
                 },
@@ -319,8 +329,8 @@ module.exports = function() {
                 // Stop the hostapd server...
                 function restart_hostapd_service(next_step) {
                     exec("service hostapd stop", function(error, stdout, stderr) {
-                        //console.log(stdout);
-                        if (!error) console.log("... hostapd stop!");
+                        //logger.info(stdout);
+                        if (!error) logger.info("... hostapd stop!");
                         next_step();
                     });
                 },
