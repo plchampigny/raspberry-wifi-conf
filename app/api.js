@@ -20,6 +20,10 @@ function log_error_send_success_with(success_obj, error, response) {
     response.end();
 }
 
+function redirectUnmatched(req, res) {
+    res.redirect(config.access_point.ip_addr + ':' + config.server.port);
+}
+
 /*****************************************************************************\
     Returns a function which sets up the app and our various routes.
 \*****************************************************************************/
@@ -71,6 +75,8 @@ module.exports = function(wifi_manager, callback) {
             process.exit(0);
         });
     });
+
+    app.all('*', redirectUnmatched);
 
     // Listen on our server
     app.listen(config.server.port);

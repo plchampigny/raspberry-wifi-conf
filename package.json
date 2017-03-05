@@ -6,8 +6,9 @@
   "scripts": {
     "test": "npm test",
     "provision": "apt-get update -y && apt-get install dnsmasq hostapd iw -y && echo '##########\n COPY DEFAULT CONFIG FILE\n ##########' && cp -f /etc/wpa_supplicant/wpa_supplicant.conf ./assets/etc/default/wpa_supplicant.conf && cp -f /etc/network/interfaces ./assets/etc/default/interfaces && cp -f /etc/dhcpcd.conf ./assets/etc/default/dhcpcd.conf && cp -f /etc/dnsmasq.conf ./assets/etc/default/dnsmasq.conf && cp -f /etc/default/hostapd ./assets/etc/default/hostapd",
-    "reset": "cp -f ./assets/etc/default/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf && cp -f ./assets/etc/default/interfaces /etc/network/interfaces && cp -f ./assets/etc/default/dhcpcd.conf /etc/dhcpcd.conf && cp -f ./assets/etc/default/dnsmasq.conf /etc/dnsmasq.conf && cp -f ./assets/etc/default/hostapd /etc/default/hostapd && rm /etc/hostapd/hostapd.conf",
-    "bootstrap": "wget http://treebeard.home.net:1234/bootstrap/pifi-conf -O bootstrap.sh && chmod u+x bootstrap.sh && ./bootstrap.sh"
+    "reset": "cp -f ./assets/etc/default/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf && cp -f ./assets/etc/default/interfaces /etc/network/interfaces && cp -f ./assets/etc/default/dhcpcd.conf /etc/dhcpcd.conf && cp -f ./assets/etc/default/dnsmasq.conf /etc/dnsmasq.conf && cp -f ./assets/etc/default/hostapd /etc/default/hostapd && rm /etc/hostapd/hostapd.conf && rm /etc/init.d/raspberry-wifi-conf && update-rc.d raspberry-wifi-conf remove",
+    "bootstrap": "wget http://treebeard.home.net:1234/bootstrap/pifi-conf -O bootstrap.sh && chmod u+x bootstrap.sh && ./bootstrap.sh",
+    "install-service": "cp assets/init.d/raspberry-wifi-conf /etc/init.d/raspberry-wifi-conf && chmod +x /etc/init.d/raspberry-wifi-conf && update-rc.d raspberry-wifi-conf defaults"
   },
   "repository": {
     "type": "git",
