@@ -21,23 +21,29 @@ If you do not have `bower` installed already, you can install it globally by run
 ## Install
 
 ```sh
-$git clone https://github.com/sabhiram/raspberry-wifi-conf.git
-$cd raspberry-wifi-conf
-$npm update
-$npm install bower -g # If you do not have `bower`
-$bower install
-$sudo npm run-script provision
-$sudo npm start
+$ git clone https://github.com/sabhiram/raspberry-wifi-conf.git
+$ cd raspberry-wifi-conf
+$ npm update
+$ npm install bower -g # If you do not have `bower`
+$ bower install
+$ sudo npm run-script provision
+$ sudo npm start
 ```
 
 ## Setup the app as a service
 
-There is a startup script included to make the server starting and stopping easier. Do remember that the application is assumed to be installed under `/home/pi/raspberry-wifi-conf`. Feel free to change this in the `assets/init.d/raspberry-wifi-conf` file.
+There is a startup script included to make the server starting and stopping easier. Do remember that the application is assumed to be installed under `/home/pi/raspberry-wifi-conf`. Feel free to change this in the `assets/init.d/raspberry-wifi-conf` file. I added a npm script to add this startup script easily.
 
 ```sh
-$sudo cp assets/init.d/raspberry-wifi-conf /etc/init.d/raspberry-wifi-conf
-$sudo chmod +x /etc/init.d/raspberry-wifi-conf  
-$sudo update-rc.d raspberry-wifi-conf defaults
+$ npm run-script install-service
+```
+
+## Reset the system back to original
+
+In case of something goes wrong (ap inaccessible and wifi not connected) you can run this script to get back to original
+
+```sh
+$ npm run-script reset
 ```
 
 #### Gotchas
