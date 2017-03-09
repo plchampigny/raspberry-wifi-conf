@@ -9,12 +9,12 @@ var path       = require("path"),
 
 var logger = log4js.getLogger();
 
-log4js.configure({}
+log4js.configure({
 	appenders: [
 		{ type: 'console' },
 		{ type: 'file', filename: 'prism-connector.log', category: 'connector' },
 	]
-);
+});
 
 
 // Helper function to log errors and send a generic status "SUCCESS"

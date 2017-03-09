@@ -7,3 +7,4 @@ node.pid
 /assets/etc/default/dhcpcd.conf
 /assets/etc/default/dnsmasq.conf
 /assets/etc/default/hostapd
+*.log
